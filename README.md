@@ -1,6 +1,6 @@
 # Yoga Timer
 
-A guided yoga routine timer that runs on iPhone, iPad and desktop. Each asana gets a 15-second hold with an animated figure showing the pose, a countdown ring, and audio cues.
+A guided yoga routine timer that runs on iPhone, iPad and desktop. Each asana gets a 30-second hold (45 seconds per direction for Sarvang Gati) with an animated figure showing the pose, a countdown ring, and audio cues.
 
 It installs to the Home Screen as a Progressive Web App (PWA), opens full screen, and works offline.
 
@@ -8,7 +8,7 @@ It installs to the Home Screen as a Progressive Web App (PWA), opens full screen
 
 - **14 asanas in two routines:** Belly fat (5) and Hip fat (9), or both back to back
 - **Animated pose guide:** a figure demonstrates each asana and moves with the breath
-- **15-second countdown** with a progress ring and an optional get-ready gap between poses
+- **30-second holds** (45 s per direction for Sarvang Gati) with a progress ring and a 15-second get-ready gap between poses
 - **Audio cues:** beeps for the last 3 seconds and on each pose change, and plays even with the iPhone in Silent mode
 - **Rounds:** repeat the routine 1–3 times
 - **Screen stays awake** while the timer runs
@@ -22,11 +22,11 @@ It installs to the Home Screen as a Progressive Web App (PWA), opens full screen
 |---|---|
 | Sarvang Gati | Utkatasana |
 | Ardha Navasana | Kaliasana |
-| Santolanasana Variation | Virabhadrasana 1 |
-| Vasisthasana (both sides) | Virabhadrasana 2 |
+| Santolanasana Variation | Virabhadrasana 1 (both sides) |
+| Vasisthasana (both sides) | Virabhadrasana 2 (both sides) |
 | Dhanurasana | Malasana |
-| | Anjaneyasana |
-| | Uttana Pristhasana |
+| | Anjaneyasana (both sides) |
+| | Uttana Pristhasana (both sides) |
 | | Balasana |
 | | Setu Bandhasana |
 

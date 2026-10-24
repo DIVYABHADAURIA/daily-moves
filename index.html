@@ -108,7 +108,7 @@ button,select,input,a{touch-action:manipulation}
 <div class="wrap">
   <header>
     <h1>Core Asana Timer</h1>
-    <p>Asanas from <a href="https://www.youtube.com/watch?v=fJBdapexCkw" target="_blank" rel="noopener">5 Asanas To Reduce Belly Fat</a> and <a href="https://www.youtube.com/watch?v=BfZQCjgtpDg" target="_blank" rel="noopener">8 Asanas to get rid of Hip Fat</a> by Yoga With Naveen, 15 seconds each.</p>
+    <p>Asanas from <a href="https://www.youtube.com/watch?v=fJBdapexCkw" target="_blank" rel="noopener">5 Asanas To Reduce Belly Fat</a> and <a href="https://www.youtube.com/watch?v=BfZQCjgtpDg" target="_blank" rel="noopener">8 Asanas to get rid of Hip Fat</a> by Yoga With Naveen, with 30–45 second holds.</p>
   </header>
 
   <section class="stage" aria-live="polite">
@@ -155,7 +155,7 @@ button,select,input,a{touch-action:manipulation}
         <select id="rounds"><option selected>1</option><option>2</option><option>3</option></select>
       </label>
       <label for="restSel">Get-ready gap
-        <select id="restSel"><option value="0">None</option><option value="5" selected>5 s</option><option value="10">10 s</option></select>
+        <select id="restSel"><option value="0">None</option><option value="5">5 s</option><option value="10">10 s</option><option value="15" selected>15 s</option></select>
       </label>
       <label for="beep"><input type="checkbox" id="beep" checked> Beeps</label>
       <button id="testBeep" type="button" style="padding:4px 12px;font-size:.8rem">Test sound</button>
@@ -172,30 +172,31 @@ button,select,input,a{touch-action:manipulation}
 const VIDEOS={belly:"https://www.youtube.com/watch?v=fJBdapexCkw&t=",hip:"https://www.youtube.com/watch?v=BfZQCjgtpDg&t="};
 const SETS={belly:"Belly fat",hip:"Hip fat"};
 const POSES=[
-  {set:"belly",name:"Sarvang Gati",ts:"01:04",t:64,cue:"Stand feet wide, arms overhead with biceps by the ears, fingers interlocked. Bend forward with a flat back, then circle the upper body: side, lean back, other side, down. Switch direction halfway."},
-  {set:"belly",name:"Ardha Navasana",ts:"04:03",t:243,cue:"Half boat. Sit, lean back, lift legs. Keep the spine long and the core tight."},
-  {set:"belly",name:"Santolanasana Variation",ts:"06:23",t:383,cue:"Plank-based balance. Shoulders over wrists, body in one straight line."},
-  {set:"belly",name:"Vasisthasana · right side",ts:"08:28",t:508,cue:"Side plank on the right hand. Stack the feet and lift the hips high."},
-  {set:"belly",name:"Vasisthasana · left side",ts:"08:28",t:508,cue:"Switch sides. Left hand down, hips lifted, top arm reaching up."},
-  {set:"belly",name:"Dhanurasana",ts:"10:30",t:630,cue:"Bow pose. Lie on your belly, hold the ankles and lift the chest and thighs."},
-  {set:"hip",name:"Utkatasana",ts:"01:20",t:80,cue:"Chair pose. Feet together, sit the hips back and down, arms reaching up beside the ears."},
-  {set:"hip",name:"Kaliasana",ts:"02:59",t:179,cue:"Goddess pose. Feet wide, toes out, sink into a squat with knees over toes. Elbows bent, palms forward."},
-  {set:"hip",name:"Virabhadrasana 1",ts:"04:28",t:268,cue:"Warrior 1. Front knee bent over the ankle, back leg straight, hips facing forward, arms up."},
-  {set:"hip",name:"Virabhadrasana 2",ts:"06:54",t:414,cue:"Warrior 2. Wide stance, front knee bent, arms stretched out at shoulder height, gaze over the front hand."},
-  {set:"hip",name:"Malasana",ts:"09:00",t:540,cue:"Garland squat. Feet a little apart, squat deep, palms together, elbows pressing the knees open."},
-  {set:"hip",name:"Anjaneyasana",ts:"10:31",t:631,cue:"Low lunge. Back knee on the mat, front knee over ankle, sink the hips forward and reach the arms up."},
-  {set:"hip",name:"Uttana Pristhasana",ts:"12:50",t:770,cue:"Lizard pose. From a lunge, bring both forearms down inside the front foot and let the hips sink."},
-  {set:"hip",name:"Balasana",ts:"14:08",t:848,cue:"Child's pose. Hips back to the heels, forehead down, arms stretched forward. Breathe and rest."},
-  {set:"hip",name:"Setu Bandhasana",ts:"14:46",t:886,cue:"Bridge pose. Lie on your back, feet flat near the hips, press down and lift the hips high."}
+  {set:"belly",dur:45,name:"Sarvang Gati · clockwise",ts:"01:04",t:64,cue:"Stand feet wide, arms overhead with biceps by the ears, fingers interlocked. Bend forward with a flat back, then circle the upper body left to right: side, lean back, other side, down."},
+  {set:"belly",dur:45,name:"Sarvang Gati · anticlockwise",ts:"01:04",t:64,cue:"Switch your wrist grip. Same big circles, now right to left: down, side, lean back, other side."},
+  {set:"belly",dur:30,name:"Ardha Navasana",ts:"04:03",t:243,cue:"Half boat. Sit, lean back, lift legs. Keep the spine long and the core tight."},
+  {set:"belly",dur:30,name:"Santolanasana Variation",ts:"06:23",t:383,cue:"Plank-based balance. Shoulders over wrists, body in one straight line."},
+  {set:"belly",dur:30,name:"Vasisthasana · right side",ts:"08:28",t:508,cue:"Side plank on the right hand. Stack the feet and lift the hips high."},
+  {set:"belly",dur:30,name:"Vasisthasana · left side",ts:"08:28",t:508,cue:"Switch sides. Left hand down, hips lifted, top arm reaching up."},
+  {set:"belly",dur:30,name:"Dhanurasana",ts:"10:30",t:630,cue:"Bow pose. Lie on your belly, hold the ankles and lift the chest and thighs."},
+  {set:"hip",dur:30,name:"Utkatasana",ts:"01:20",t:80,cue:"Chair pose. Feet together, sit the hips back and down, arms reaching up beside the ears."},
+  {set:"hip",dur:30,name:"Kaliasana",ts:"02:59",t:179,cue:"Goddess pose. Feet wide, toes out, sink into a squat with knees over toes. Elbows bent, palms forward."},
+  {set:"hip",dur:30,name:"Virabhadrasana 1",ts:"04:28",t:268,cue:"Warrior 1. Front knee bent over the ankle, back leg straight, hips facing forward, arms up."},
+  {set:"hip",dur:30,name:"Virabhadrasana 2",ts:"06:54",t:414,cue:"Warrior 2. Wide stance, front knee bent, arms stretched out at shoulder height, gaze over the front hand."},
+  {set:"hip",dur:30,name:"Malasana",ts:"09:00",t:540,cue:"Garland squat. Feet a little apart, squat deep, palms together, elbows pressing the knees open."},
+  {set:"hip",dur:30,name:"Anjaneyasana",ts:"10:31",t:631,cue:"Low lunge. Back knee on the mat, front knee over ankle, sink the hips forward and reach the arms up."},
+  {set:"hip",dur:30,name:"Uttana Pristhasana",ts:"12:50",t:770,cue:"Lizard pose. From a lunge, bring both forearms down inside the front foot and let the hips sink."},
+  {set:"hip",dur:30,name:"Balasana",ts:"14:08",t:848,cue:"Child's pose. Hips back to the heels, forehead down, arms stretched forward. Breathe and rest."},
+  {set:"hip",dur:30,name:"Setu Bandhasana",ts:"14:46",t:886,cue:"Bridge pose. Lie on your back, feet flat near the hips, press down and lift the hips high."}
 ];
 const HOLD=15;
 /* Stick-figure keyframes (side view, ground at y≈105). A ↔ B loops with the breath.
    h head, n shoulders, p hips, e/w elbow/wrist, k/f knee/foot; e2/w2 = far arm if different. */
 const FIGS=[
-  {note:"Big torso circles, arms locked by the ears · direction switches every 2 circles",period:4,
+  {note:"Big torso circles, arms locked by the ears · left to right",period:4,dir:1,
    fn(sec){
      /* standing, hips fixed; upper body + arms trace a cone. 2 circles clockwise, then 2 anticlockwise */
-     const cyc=sec%16, dir=cyc<8?1:-1, phi=dir*2*Math.PI*((cyc%8)/4);
+     const phi=(this.dir||1)*2*Math.PI*((sec%4)/4);
      const th=(50+30*Math.cos(phi))*Math.PI/180;          /* deep forward bend, gentle back lean */
      const dx=Math.sin(th)*Math.cos(phi), dz=Math.sin(th)*Math.sin(phi), dy=-Math.cos(th);
      const v=[dx*.85+dz*.5, dy];                            /* 3/4 view so the side sweep shows */
@@ -249,7 +250,19 @@ FIGS.push(
    A:{h:[54,99],n:[64,101],p:[92,96],e:[80,104],w:[96,104],k:[114,82],f:[116,104]},
    B:{h:[56,99],n:[66,100],p:[96,82],e:[80,104],w:[96,104],k:[114,80],f:[116,104]}}
 );
-const FACE=[1,1,-1,0,0,-1, 1,0,1,0,1,1,1,1,1]; /* which way the face looks, relative to the neck→head line */
+const FACE=[1,1,-1,0,0,-1, 1,0,1,0,1,1,1,1,1];
+/* second Sarvang Gati slot: same move, opposite direction */
+FIGS.splice(1,0,{...FIGS[0],dir:-1,note:"Big torso circles, arms locked by the ears · right to left"});
+FACE.splice(1,0,1);
+/* one-sided poses: hold right side, then left side with the figure mirrored */
+const SIDED=["Virabhadrasana 1","Virabhadrasana 2","Anjaneyasana","Uttana Pristhasana"];
+for(let i=POSES.length-1;i>=0;i--){
+  const P=POSES[i]; if(!SIDED.includes(P.name))continue;
+  POSES[i]={...P,name:P.name+" · right side"};
+  POSES.splice(i+1,0,{...P,name:P.name+" · left side",cue:"Switch sides. "+P.cue});
+  FIGS.splice(i+1,0,{...FIGS[i],mirror:!FIGS[i].mirror});
+  FACE.splice(i+1,0,FACE[i]);
+} /* which way the face looks, relative to the neck→head line */
 const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
 const add=(a,v,s=1)=>[a[0]+v[0]*s,a[1]+v[1]*s];
 const unit=(a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1;return[dx/L,dy/L]};
@@ -323,7 +336,7 @@ function build(){
   for(let r=1;r<=rounds;r++) POSES.forEach((p,i)=>{
     if(set!=="all"&&p.set!==set)return;
     if(rest>0) queue.push({type:"rest",dur:rest,pose:i,round:r});
-    queue.push({type:"hold",dur:HOLD,pose:i,round:r});
+    queue.push({type:"hold",dur:p.dur,pose:i,round:r});
   });
   qi=0; load();
 }
@@ -415,7 +428,7 @@ $("setSel").onchange=$("rounds").onchange=$("restSel").onchange=()=>{if(!running
 $("list").innerHTML=Object.keys(SETS).map(k=>{let n=0;return `<div class="grp" data-set="${k}"><h3>${SETS[k]}</h3><ol>`+
   POSES.map((p,i)=>p.set!==k?"":`<li data-i="${i}"><span class="n">${++n}</span>
   <span class="t"><b>${p.name}</b><small>${p.cue}</small><br><a href="${VIDEOS[p.set]}${p.t}s" target="_blank" rel="noopener">Watch at ${p.ts}</a></span>
-  <span class="d">${HOLD} s</span></li>`).join("")+"</ol></div>"}).join("");
+  <span class="d">${p.dur} s</span></li>`).join("")+"</ol></div>"}).join("");
 build();
 requestAnimationFrame(renderFig);
 </script>

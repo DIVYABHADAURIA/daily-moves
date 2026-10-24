@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Yoga Timer</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Yoga Timer">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#EEF2EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121916" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: one column "mat" — big ring timer on top, routine list below */
+:root{
+  --bg:#EEF2EC; --surface:#FFFFFF; --ink:#1C2A25; --muted:#5D6B64; --line:#D3DCD5;
+  --accent:#C9840A; --accent-soft:#F6E6C4; --leaf:#2F6B55;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121916; --surface:#1B2420; --ink:#E6EEE9; --muted:#9AAAA2; --line:#2C3833;
+  --accent:#F0AE3C; --accent-soft:#3A2F17; --leaf:#6BC4A1; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121916; --surface:#1B2420; --ink:#E6EEE9; --muted:#9AAAA2; --line:#2C3833;
+  --accent:#F0AE3C; --accent-soft:#3A2F17; --leaf:#6BC4A1; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:560px;margin:0 auto;padding-block:20px 40px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:20px}
+header h1{font-family:var(--display);font-weight:700;font-size:1.7rem;line-height:1.15;margin:0;text-wrap:balance}
+header p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+header a{color:var(--leaf)}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.phase{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--leaf)}
+.phase.rest{color:var(--accent)}
+.figbox{margin:0;width:100%;display:flex;flex-direction:column;gap:6px}
+#fig{width:100%;max-width:100%;height:auto;background:var(--bg);border-radius:14px}
+#fig{--skin:#C68A62;--skin-far:#A8704C;--hair:#2B1E19;--shirt1:#2F8A73;--shirt2:#1F6656;--pants:#2E3440;--pants-far:#1E232B;
+  --wall1:#F7F9F5;--wall2:#E3EBE4;--floor:#CDB89A;--matc:#7A6CC4;--matd:#5C4FA3}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #fig{--wall1:#1E2925;--wall2:#17201C;--floor:#3A3229;--pants:#3B4352;--pants-far:#2A303B}}
+:root[data-theme="dark"] #fig{--wall1:#1E2925;--wall2:#17201C;--floor:#3A3229;--pants:#3B4352;--pants-far:#2A303B}
+#fig .wall-a{stop-color:var(--wall1)} #fig .wall-b{stop-color:var(--wall2)}
+#fig .shirt-a{stop-color:var(--shirt1)} #fig .shirt-b{stop-color:var(--shirt2)}
+#fig .shadow-a{stop-color:#000;stop-opacity:.28} #fig .shadow-b{stop-color:#000;stop-opacity:0}
+#fig .floor{fill:var(--floor)} #fig .mat{fill:var(--matc)} #fig .mat-edge{fill:var(--matd)}
+#fig .skin{fill:var(--skin)} #fig .skin-far{fill:var(--skin-far)}
+#fig .shirt{fill:var(--shirt1)} #fig .pants{fill:var(--pants)} #fig .pants-far{fill:var(--pants-far)}
+#fig .hair{fill:var(--hair)} #fig .face{fill:var(--hair);opacity:.7}
+.figbox figcaption{font-size:.8rem;color:var(--muted)}
+.figbox a{color:var(--leaf);font-weight:600}
+.ring{position:relative;width:min(190px,52vw);aspect-ratio:1;max-width:100%}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .track{fill:none;stroke:var(--line);stroke-width:10}
+.ring .prog{fill:none;stroke:var(--leaf);stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.ring .prog.rest{stroke:var(--accent)}
+.count{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.count b{font-family:var(--display);font-size:3.4rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.count span{color:var(--muted);font-size:.8rem}
+.pose-name{font-family:var(--display);font-size:1.45rem;font-weight:700;margin:0;text-wrap:balance}
+.cue{margin:0;color:var(--muted);max-width:42ch}
+.next{font-size:.85rem;color:var(--muted)}
+.next strong{color:var(--ink);font-weight:600}
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+button{font:inherit;font-weight:600;border-radius:999px;padding:10px 18px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+button.primary{background:var(--leaf);border-color:var(--leaf);color:var(--bg);min-width:120px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.settings{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-size:.85rem;color:var(--muted)}
+.settings label{display:flex;align-items:center;gap:6px}
+select{font:inherit;padding:4px 6px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+h2{font-family:var(--display);font-size:1.1rem;margin:0}
+.grp{display:flex;flex-direction:column;gap:8px}
+.grp.off{opacity:.45}
+.grp h3{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0}
+ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+li{display:grid;grid-template-columns:2rem 1fr auto;gap:10px;align-items:start;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface)}
+li.active{border-color:var(--leaf);box-shadow:0 0 0 2px var(--leaf) inset}
+li.done{opacity:.55}
+li .n{font-family:var(--display);font-weight:700;color:var(--leaf);font-variant-numeric:tabular-nums}
+li .t{min-width:0}
+li .t b{display:block;font-weight:600}
+li .t small{color:var(--muted)}
+li .d{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+li a{color:var(--leaf);font-size:.8rem}
+.note{font-size:.8rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.ring .prog{transition:none}}
+</style>
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%}
+body{margin:0;font-size:14px;min-height:100vh}
+button,select,input,a{touch-action:manipulation}
+[hidden]{display:none!important}
+/* iPad / wide screens: timer on the left, routine list on the right */
+@media (min-width:860px){
+  .wrap{max-width:1040px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:start}
+  .wrap>header{grid-column:1/-1}
+  .stage{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <h1>Core Asana Timer</h1>
+    <p>Asanas from <a href="https://www.youtube.com/watch?v=fJBdapexCkw" target="_blank" rel="noopener">5 Asanas To Reduce Belly Fat</a> and <a href="https://www.youtube.com/watch?v=BfZQCjgtpDg" target="_blank" rel="noopener">8 Asanas to get rid of Hip Fat</a> by Yoga With Naveen, 15 seconds each.</p>
+  </header>
+
+  <section class="stage" aria-live="polite">
+    <div class="phase" id="phase">Ready</div>
+    <figure class="figbox">
+      <svg id="fig" viewBox="0 0 200 120" role="img" aria-label="Animated figure demonstrating the pose">
+        <defs>
+          <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" class="wall-a"></stop><stop offset="1" class="wall-b"></stop>
+          </linearGradient>
+          <linearGradient id="shirtG" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" class="shirt-a"></stop><stop offset="1" class="shirt-b"></stop>
+          </linearGradient>
+          <radialGradient id="shadowG"><stop offset="0" class="shadow-a"></stop><stop offset="1" class="shadow-b"></stop></radialGradient>
+        </defs>
+        <rect x="0" y="0" width="200" height="120" fill="url(#wall)"></rect>
+        <rect class="floor" x="0" y="104" width="200" height="16"></rect>
+        <rect class="mat" x="24" y="104" width="152" height="4" rx="1.5"></rect>
+        <rect class="mat-edge" x="24" y="107" width="152" height="1.4" rx=".7"></rect>
+        <g id="scene"></g>
+      </svg>
+      <figcaption><span id="figNote">Animated guide</span> · <a id="watch" href="#" target="_blank" rel="noopener">Watch in video</a></figcaption>
+    </figure>
+    <div class="ring">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="track" cx="60" cy="60" r="52"></circle>
+        <circle class="prog" id="prog" cx="60" cy="60" r="52"></circle>
+      </svg>
+      <div class="count"><b id="sec">15</b><span>seconds</span></div>
+    </div>
+    <p class="pose-name" id="pname">Sarvang Gati</p>
+    <p class="cue" id="pcue"></p>
+    <div class="next" id="next"></div>
+    <div class="controls">
+      <button class="primary" id="startBtn" type="button">Start</button>
+      <button id="skipBtn" type="button">Skip</button>
+      <button id="resetBtn" type="button">Reset</button>
+    </div>
+    <div class="settings">
+      <label for="setSel">Routine
+        <select id="setSel"><option value="all" selected>Belly + Hips (14)</option><option value="belly">Belly fat (5)</option><option value="hip">Hip fat (9)</option></select>
+      </label>
+      <label for="rounds">Rounds
+        <select id="rounds"><option selected>1</option><option>2</option><option>3</option></select>
+      </label>
+      <label for="restSel">Get-ready gap
+        <select id="restSel"><option value="0">None</option><option value="5" selected>5 s</option><option value="10">10 s</option></select>
+      </label>
+      <label for="beep"><input type="checkbox" id="beep" checked> Beeps</label>
+      <button id="testBeep" type="button" style="padding:4px 12px;font-size:.8rem">Test sound</button>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <div id="list" style="display:flex;flex-direction:column;gap:14px"></div>
+    <p class="note">Watch each pose in the video first (tap the timestamp) so your form is right. Breathe steadily, ease off if anything hurts, and skip Dhanurasana if you have back problems.</p>
+  </section>
+</div>
+
+<script>
+const VIDEOS={belly:"https://www.youtube.com/watch?v=fJBdapexCkw&t=",hip:"https://www.youtube.com/watch?v=BfZQCjgtpDg&t="};
+const SETS={belly:"Belly fat",hip:"Hip fat"};
+const POSES=[
+  {set:"belly",name:"Sarvang Gati",ts:"01:04",t:64,cue:"Stand feet wide, arms overhead with biceps by the ears, fingers interlocked. Bend forward with a flat back, then circle the upper body: side, lean back, other side, down. Switch direction halfway."},
+  {set:"belly",name:"Ardha Navasana",ts:"04:03",t:243,cue:"Half boat. Sit, lean back, lift legs. Keep the spine long and the core tight."},
+  {set:"belly",name:"Santolanasana Variation",ts:"06:23",t:383,cue:"Plank-based balance. Shoulders over wrists, body in one straight line."},
+  {set:"belly",name:"Vasisthasana · right side",ts:"08:28",t:508,cue:"Side plank on the right hand. Stack the feet and lift the hips high."},
+  {set:"belly",name:"Vasisthasana · left side",ts:"08:28",t:508,cue:"Switch sides. Left hand down, hips lifted, top arm reaching up."},
+  {set:"belly",name:"Dhanurasana",ts:"10:30",t:630,cue:"Bow pose. Lie on your belly, hold the ankles and lift the chest and thighs."},
+  {set:"hip",name:"Utkatasana",ts:"01:20",t:80,cue:"Chair pose. Feet together, sit the hips back and down, arms reaching up beside the ears."},
+  {set:"hip",name:"Kaliasana",ts:"02:59",t:179,cue:"Goddess pose. Feet wide, toes out, sink into a squat with knees over toes. Elbows bent, palms forward."},
+  {set:"hip",name:"Virabhadrasana 1",ts:"04:28",t:268,cue:"Warrior 1. Front knee bent over the ankle, back leg straight, hips facing forward, arms up."},
+  {set:"hip",name:"Virabhadrasana 2",ts:"06:54",t:414,cue:"Warrior 2. Wide stance, front knee bent, arms stretched out at shoulder height, gaze over the front hand."},
+  {set:"hip",name:"Malasana",ts:"09:00",t:540,cue:"Garland squat. Feet a little apart, squat deep, palms together, elbows pressing the knees open."},
+  {set:"hip",name:"Anjaneyasana",ts:"10:31",t:631,cue:"Low lunge. Back knee on the mat, front knee over ankle, sink the hips forward and reach the arms up."},
+  {set:"hip",name:"Uttana Pristhasana",ts:"12:50",t:770,cue:"Lizard pose. From a lunge, bring both forearms down inside the front foot and let the hips sink."},
+  {set:"hip",name:"Balasana",ts:"14:08",t:848,cue:"Child's pose. Hips back to the heels, forehead down, arms stretched forward. Breathe and rest."},
+  {set:"hip",name:"Setu Bandhasana",ts:"14:46",t:886,cue:"Bridge pose. Lie on your back, feet flat near the hips, press down and lift the hips high."}
+];
+const HOLD=15;
+/* Stick-figure keyframes (side view, ground at y≈105). A ↔ B loops with the breath.
+   h head, n shoulders, p hips, e/w elbow/wrist, k/f knee/foot; e2/w2 = far arm if different. */
+const FIGS=[
+  {note:"Big torso circles, arms locked by the ears · direction switches every 2 circles",period:4,
+   fn(sec){
+     /* standing, hips fixed; upper body + arms trace a cone. 2 circles clockwise, then 2 anticlockwise */
+     const cyc=sec%16, dir=cyc<8?1:-1, phi=dir*2*Math.PI*((cyc%8)/4);
+     const th=(50+30*Math.cos(phi))*Math.PI/180;          /* deep forward bend, gentle back lean */
+     const dx=Math.sin(th)*Math.cos(phi), dz=Math.sin(th)*Math.sin(phi), dy=-Math.cos(th);
+     const v=[dx*.85+dz*.5, dy];                            /* 3/4 view so the side sweep shows */
+     const p=[100-5*dx,66];
+     const at=(o,L)=>[o[0]+v[0]*L,o[1]+v[1]*L];
+     const n=at(p,30);
+     return {p,n,h:at(n,10),e:at(n,14),w:at(n,29),k:[(p[0]+97)/2+1,85],f:[97,104]};
+   }},
+  {note:"Hold, gently lift the legs",period:4,
+   A:{h:[77,62],n:[82,70],p:[100,100],e:[100,78],w:[118,80],k:[120,78],f:[140,82]},
+   B:{h:[77,62],n:[82,70],p:[100,100],e:[100,78],w:[118,80],k:[122,76],f:[146,66]}},
+  {note:"Hold a straight line, breathe",period:4,
+   A:{h:[61,76],n:[70,78],p:[115,90],e:[69,92],w:[68,105],k:[138,97],f:[160,103]},
+   B:{h:[61,75],n:[70,78],p:[115,86],e:[69,92],w:[68,105],k:[138,95],f:[160,103]}},
+  {note:"Lift hips, reach the top arm up",period:4,
+   A:{h:[64,66],n:[72,70],p:[116,94],e:[71,88],w:[70,105],k:[139,100],f:[160,104],e2:[90,76],w2:[108,84]},
+   B:{h:[63,67],n:[72,70],p:[116,84],e:[71,88],w:[70,105],k:[139,95],f:[160,104],e2:[73,52],w2:[74,35]}},
+  null, /* left side = mirrored right side */
+  {note:"Kick the feet back to lift the chest",period:4,
+   A:{h:[63,96],n:[74,100],p:[112,101],e:[96,98],w:[121,83],k:[134,101],f:[124,80]},
+   B:{h:[67,79],n:[76,86],p:[110,100],e:[97,82],w:[117,69],k:[134,95],f:[120,66]}}
+];
+FIGS[4]={...FIGS[3],mirror:true};
+/* hip set. k2/f2 = far leg when it differs (wide stances, lunges) */
+FIGS.push(
+  {note:"Sit back deeper, arms reaching up",period:4,
+   A:{h:[121,34],n:[116,43],p:[103,70],e:[122,30],w:[128,17],k:[116,84],f:[108,104]},
+   B:{h:[120,44],n:[115,53],p:[102,80],e:[121,40],w:[127,27],k:[124,88],f:[108,104]}},
+  {note:"Sink low, knees out, elbows bent",period:4,
+   A:{h:[100,28],n:[100,38],p:[100,68],e:[82,38],w:[82,20],e2:[118,38],w2:[118,20],k:[86,86],f:[76,104],k2:[114,86],f2:[124,104]},
+   B:{h:[100,38],n:[100,48],p:[100,78],e:[80,48],w:[80,30],e2:[120,48],w2:[120,30],k:[80,82],f:[74,104],k2:[120,82],f2:[126,104]}},
+  {note:"Bend the front knee, reach up",period:4,
+   A:{h:[102,32],n:[102,42],p:[102,73],e:[104,28],w:[106,13],k:[124,82],f:[128,104],k2:[86,89],f2:[70,104]},
+   B:{h:[104,37],n:[104,47],p:[104,78],e:[106,33],w:[108,18],k:[126,82],f:[128,104],k2:[86,91],f2:[70,104]}},
+  {note:"Sink into the front knee, arms long",period:4,
+   A:{h:[100,30],n:[100,40],p:[100,70],e:[115,40],w:[130,40],e2:[85,40],w2:[70,40],k:[120,78],f:[128,104],k2:[84,86],f2:[68,104]},
+   B:{h:[100,34],n:[100,44],p:[100,74],e:[115,44],w:[130,44],e2:[85,44],w2:[70,44],k:[121,80],f:[128,104],k2:[84,88],f2:[68,104]}},
+  {note:"Squat deep, lift the chest",period:4,
+   A:{h:[102,56],n:[100,66],p:[94,96],e:[114,78],w:[107,68],k:[114,84],f:[108,104]},
+   B:{h:[101,53],n:[99,63],p:[94,95],e:[114,77],w:[107,66],k:[114,84],f:[108,104]}},
+  {note:"Sink the hips, arms up",period:4,
+   A:{h:[109,48],n:[108,58],p:[108,88],e:[110,44],w:[112,29],k:[130,82],f:[132,104],k2:[88,102],f2:[66,104]},
+   B:{h:[98,49],n:[101,58],p:[106,90],e:[99,44],w:[96,30],k:[130,82],f:[132,104],k2:[87,103],f2:[66,104]}},
+  {note:"Forearms down, let the hips sink",period:4,
+   A:{h:[143,91],n:[134,93],p:[106,88],e:[135,104],w:[149,104],k:[128,84],f:[132,104],k2:[86,97],f2:[64,104]},
+   B:{h:[143,92],n:[134,94],p:[106,93],e:[135,104],w:[149,104],k:[128,85],f:[132,104],k2:[86,99],f2:[64,104]}},
+  {note:"Rest and breathe into the back",period:5,
+   A:{h:[135,99],n:[126,94],p:[98,92],e:[140,100],w:[154,103],k:[118,102],f:[96,103]},
+   B:{h:[134,97],n:[125,91],p:[98,90],e:[140,100],w:[154,103],k:[118,102],f:[96,103]}},
+  {note:"Press the feet down, lift the hips",period:4,
+   A:{h:[54,99],n:[64,101],p:[92,96],e:[80,104],w:[96,104],k:[114,82],f:[116,104]},
+   B:{h:[56,99],n:[66,100],p:[96,82],e:[80,104],w:[96,104],k:[114,80],f:[116,104]}}
+);
+const FACE=[1,1,-1,0,0,-1, 1,0,1,0,1,1,1,1,1]; /* which way the face looks, relative to the neck→head line */
+const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
+const add=(a,v,s=1)=>[a[0]+v[0]*s,a[1]+v[1]*s];
+const unit=(a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1;return[dx/L,dy/L]};
+const f1=x=>x.toFixed(2);
+/* tapered limb: two rounded ends joined by a quad, so joints look like real joints */
+function limb(a,b,r1,r2,cls){
+  const u=unit(a,b),pp=[-u[1],u[0]];
+  const p1=add(a,pp,r1),p2=add(b,pp,r2),p3=add(b,pp,-r2),p4=add(a,pp,-r1);
+  return `<path class="${cls}" d="M${f1(p1[0])} ${f1(p1[1])}L${f1(p2[0])} ${f1(p2[1])}L${f1(p3[0])} ${f1(p3[1])}L${f1(p4[0])} ${f1(p4[1])}Z"/>`+
+    `<circle class="${cls}" cx="${f1(a[0])}" cy="${f1(a[1])}" r="${r1}"/><circle class="${cls}" cx="${f1(b[0])}" cy="${f1(b[1])}" r="${r2}"/>`;
+}
+const dot=(c,r,cls)=>`<circle class="${cls}" cx="${f1(c[0])}" cy="${f1(c[1])}" r="${r}"/>`;
+let figIdx=0;
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function renderFig(ts){
+  const F=FIGS[figIdx], per=F.period*1000;
+  const t=reduce?1:(1-Math.cos(2*Math.PI*(ts%per)/per))/2;
+  const J={}, raw=F.fn?F.fn(reduce?0:ts/1000):null;
+  for(const k in (raw||F.A)){const q=raw?raw[k]:lerp(F.A[k],F.B[k],t);J[k]=[F.mirror?200-q[0]:q[0],q[1]-3]}
+  const off=[F.mirror?-3:3,-3], far=k=>add(J[k],off);
+  let s="";
+  /* soft floor shadow */
+  const cx=J.f2?(J.f[0]+J.f2[0])/2:(J.n[0]+J.p[0]+J.f[0])/3;
+  s+=`<ellipse cx="${f1(cx)}" cy="104.5" rx="48" ry="3.2" fill="url(#shadowG)"/>`;
+  /* far side (darker) */
+  if(J.k2){s+=limb(J.p,J.k2,5.6,4.3,"pants-far")+limb(J.k2,J.f2,4.3,3.1,"pants-far")+dot(J.f2,3.2,"skin-far")}
+  else{s+=limb(far("p"),far("k"),5.6,4.3,"pants-far")+limb(far("k"),far("f"),4.3,3.1,"pants-far")+dot(far("f"),3.2,"skin-far")}
+  if(J.e2){s+=limb(J.n,J.e2,3.6,3,"skin-far")+limb(J.e2,J.w2,3,2.4,"skin-far")+dot(J.w2,2.9,"skin-far")}
+  else{s+=limb(far("n"),far("e"),3.6,3,"skin-far")+limb(far("e"),far("w"),3,2.4,"skin-far")+dot(far("w"),2.9,"skin-far")}
+  /* torso: shirt over chest, pants at hips */
+  const mid=lerp(J.n,J.p,.62);
+  s+=limb(mid,J.p,6.6,6.8,"pants");
+  s+=limb(J.n,mid,7.6,6.6,"shirt");
+  /* neck + head */
+  const d=unit(J.n,J.h), fd=FACE[figIdx]*(F.mirror?-1:1);
+  const fv=fd===0?[0,0]:[-d[1]*fd,d[0]*fd];
+  s+=limb(J.n,lerp(J.n,J.h,.7),2.9,2.6,"skin");
+  if(fd===0){
+    s+=dot(add(J.h,d,1.6),7.6,"hair")+dot(J.h,6.7,"skin");
+    const side=[-d[1],d[0]], eye=add(J.h,d,-.6);
+    s+=dot(add(eye,side,2.4),.9,"face")+dot(add(eye,side,-2.4),.9,"face");
+  }else{
+    s+=`<ellipse class="hair" cx="${f1(J.h[0]+d[0]*5-fv[0]*5)}" cy="${f1(J.h[1]+d[1]*5-fv[1]*5)}" rx="3.2" ry="3.2"/>`;
+    s+=dot(add(add(J.h,d,1.4),fv,-1.4),7.4,"hair");
+    s+=dot(add(J.h,fv,1.1),6.3,"skin");
+    s+=dot(add(add(J.h,fv,4.6),d,.8),.9,"face");
+  }
+  /* near side */
+  s+=limb(J.p,J.k,5.8,4.4,"pants")+limb(J.k,J.f,4.4,3.2,"pants")+dot(J.f,3.3,"skin");
+  s+=limb(J.n,J.e,3.7,3.1,"skin")+limb(J.e,J.w,3.1,2.5,"skin")+dot(J.w,3,"skin");
+  $("scene").innerHTML=s;
+  requestAnimationFrame(renderFig);
+}
+function setFig(i){
+  figIdx=i;
+  $("figNote").textContent=FIGS[i].note;
+  $("watch").href=VIDEOS[POSES[i].set]+POSES[i].t+"s";
+  $("watch").textContent="Watch at "+POSES[i].ts+" ("+SETS[POSES[i].set]+" video)";
+}
+const $=id=>document.getElementById(id);
+const prog=$("prog"), C=2*Math.PI*52;
+prog.style.strokeDasharray=C;
+
+let queue=[], qi=0, remaining=HOLD, total=HOLD, running=false, timer=null, ctx=null, wake=null;
+
+function build(){
+  const rounds=+$("rounds").value, rest=+$("restSel").value;
+  queue=[];
+  const set=$("setSel").value;
+  document.querySelectorAll(".grp").forEach(g=>g.classList.toggle("off",set!=="all"&&g.dataset.set!==set));
+  for(let r=1;r<=rounds;r++) POSES.forEach((p,i)=>{
+    if(set!=="all"&&p.set!==set)return;
+    if(rest>0) queue.push({type:"rest",dur:rest,pose:i,round:r});
+    queue.push({type:"hold",dur:HOLD,pose:i,round:r});
+  });
+  qi=0; load();
+}
+function load(){
+  const s=queue[qi];
+  if(!s){finish();return}
+  remaining=total=s.dur;
+  const p=POSES[s.pose], rounds=+$("rounds").value;
+  const rTxt=rounds>1?` · Round ${s.round} of ${rounds}`:"";
+  $("phase").textContent=(s.type==="rest"?"Get into position":"Hold")+rTxt;
+  $("phase").className="phase"+(s.type==="rest"?" rest":"");
+  prog.classList.toggle("rest",s.type==="rest");
+  $("pname").textContent=p.name;
+  $("pcue").textContent=p.cue;
+  setFig(s.pose);
+  const nh=queue.slice(qi+1).find(x=>x.type==="hold"&&!(x.pose===s.pose&&x.round===s.round));
+  $("next").innerHTML=nh?`Next: <strong>${POSES[nh.pose].name}</strong>`:"Last pose";
+  draw(); mark(s);
+}
+function draw(){
+  $("sec").textContent=remaining;
+  prog.style.strokeDashoffset=C*(1-remaining/total);
+}
+function mark(s){
+  document.querySelectorAll("#list li").forEach(li=>{const i=+li.dataset.i;
+    li.classList.toggle("active",s&&i===s.pose);
+    li.classList.toggle("done",s&&i<s.pose);
+  });
+}
+/* iOS: play as media so Silent mode doesn't mute the beeps (Safari 16.4+) */
+try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
+function unlockAudio(){
+  try{
+    if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();
+    if(ctx.state!=="running")ctx.resume();
+    /* a silent blip inside the tap is what iOS needs to allow later sounds */
+    const b=ctx.createBuffer(1,1,22050),src=ctx.createBufferSource();src.buffer=b;src.connect(ctx.destination);src.start(0);
+  }catch(e){}
+}
+function tone(f,d){
+  if(!$("beep").checked||!ctx)return;
+  try{
+    if(ctx.state!=="running")ctx.resume();
+    const o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=f;o.connect(g);g.connect(ctx.destination);
+    const t=ctx.currentTime;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.6,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+d);
+    o.start(t);o.stop(t+d+.02);
+  }catch(e){}
+}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&ctx&&ctx.state!=="running")ctx.resume().catch(()=>{})});
+["touchend","click"].forEach(ev=>document.addEventListener(ev,()=>{if(ctx&&ctx.state!=="running")ctx.resume().catch(()=>{})},{passive:true}));
+function tick(){
+  remaining--;
+  if(remaining<=3&&remaining>0) tone(660,.12);
+  if(remaining<=0){
+    tone(queue[qi].type==="hold"?990:880,.35);
+    qi++; load(); return;
+  }
+  draw();
+}
+async function start(){
+  unlockAudio();
+  running=true; $("startBtn").textContent="Pause";
+  timer=setInterval(tick,1000);
+  try{wake=await navigator.wakeLock?.request("screen")}catch(e){}
+}
+function pause(){
+  running=false; clearInterval(timer); $("startBtn").textContent="Resume";
+  try{wake?.release()}catch(e){} wake=null;
+}
+function finish(){
+  pause(); $("startBtn").textContent="Start again";
+  $("phase").textContent="Done"; $("phase").className="phase";
+  $("pname").textContent="Routine complete";
+  $("pcue").textContent="Lie back in Shavasana for a few breaths.";
+  $("next").textContent=""; $("sec").textContent="0";
+  prog.style.strokeDashoffset=0;
+  document.querySelectorAll("#list li").forEach(li=>{li.classList.remove("active");li.classList.add("done")});
+  qi=queue.length;
+}
+$("startBtn").onclick=()=>{
+  if(qi>=queue.length){build()}
+  running?pause():start();
+};
+$("testBeep").onclick=()=>{unlockAudio();const was=$("beep").checked;$("beep").checked=true;tone(880,.4);$("beep").checked=was};
+$("skipBtn").onclick=()=>{if(qi<queue.length){qi++;load()}};
+$("resetBtn").onclick=()=>{pause();$("startBtn").textContent="Start";build()};
+$("setSel").onchange=$("rounds").onchange=$("restSel").onchange=()=>{if(!running){$("startBtn").textContent="Start";build()}};
+
+$("list").innerHTML=Object.keys(SETS).map(k=>{let n=0;return `<div class="grp" data-set="${k}"><h3>${SETS[k]}</h3><ol>`+
+  POSES.map((p,i)=>p.set!==k?"":`<li data-i="${i}"><span class="n">${++n}</span>
+  <span class="t"><b>${p.name}</b><small>${p.cue}</small><br><a href="${VIDEOS[p.set]}${p.t}s" target="_blank" rel="noopener">Watch at ${p.ts}</a></span>
+  <span class="d">${HOLD} s</span></li>`).join("")+"</ol></div>"}).join("");
+build();
+requestAnimationFrame(renderFig);
+</script>
+
+<script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
+</body>
+</html>
